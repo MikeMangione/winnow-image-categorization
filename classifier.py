@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 import cv2
 import glob
 import numpy as np
@@ -20,6 +19,7 @@ def getModels():
             for img in glob.glob("outs/"+models[i]+"_"+categories[j]+"_out/*.png"):
                 sals[i][j].append(cv2.imread(img, cv2.CV_LOAD_IMAGE_GRAYSCALE))
     return sals
+
 #calculates saliencies for a test image
 def getSals(img):
     sals = []
@@ -33,6 +33,7 @@ def getSals(img):
     for i in range(0,len(sals)):
         sals[i] = cv2.resize(sals[i], (100, 100))
     return sals
+
 #winnow2 for a set of results
 def reg_winnow(results):
     summation = 0
@@ -52,6 +53,7 @@ def reg_winnow(results):
                 results[w] = results[w] / 2
                 #pow(8,ci[w])
     print "learned guess accuracy ",sum(results)*1.0/len(results)
+
 #confidence level winnow
 def ci_winnow(results,ci):
     model_predictor = [0 for _ in models]
@@ -74,12 +76,14 @@ def ci_winnow(results,ci):
                     #pow(8,ci[w])
     #print(model_predictor)
     return model_predictor
+
 #computes the confidence level for the minimum of a set
 def arrayToCI(c_,ci):
     mean = np.mean(ci)
     std = np.std(ci)
     z = abs((min(c_) - mean)/std)
     return (stats.norm.cdf(z) - 0.5) * 2
+
 #prints the results of the winnow algorithms, in a pretty way
 def prettyPrintResults():
     for i in range(0,len(w_results)):
@@ -210,20 +214,17 @@ for x in range(0,len(test_images)):
         winner.append(1)
     else:
         winner.append(0)
-    #print "winner ",categories[weight_[winner].index(min(weight_[winner]))]
 
     for i in range(0,len(models)):
         if categories[weight_[i].index(min(weight_[i]))] == test_categories[x]:
             w_results[i][categories.index(test_categories[x])].append(1)
         else:
-            #print models[i], categories[weight_[i].index(min(weight_[i]))]
             w_results[i][categories.index(test_categories[x])].append(0)
             w_results[i][weight_[i].index(min(weight_[i]))].append(0)
 
         if categories[avg_[i].index(min(avg_[i]))] == test_categories[x]:
             a_results[i][categories.index(test_categories[x])].append(1)
         else:
-            #print models[i]," avg ",categories[avg_[i].index(min(avg_[i]))]
             a_results[i][categories.index(test_categories[x])].append(0)
             w_results[i][avg_[i].index(min(avg_[i]))].append(0)
 
